@@ -1,0 +1,240 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#090914">
+<meta name="description" content="Reproductor personal de listas M3U y Xtream Codes.">
+<link rel="manifest" href="manifest.json">
+<title>Xuper Stream</title>
+<style>
+:root{--bg:#090914;--panel:#141426;--panel2:#1c1c33;--text:#f7f7ff;--muted:#a5a5bd;--accent:#8b5cf6;--accent2:#22d3ee;--line:#292943}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 80% -10%,#29205a 0,transparent 35%),var(--bg);color:var(--text);font:15px system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+button,input,select{font:inherit}button{cursor:pointer;border:0;border-radius:12px;padding:11px 15px;background:linear-gradient(110deg,var(--accent),#635bdb);color:white;font-weight:700}
+button.secondary{background:var(--panel2);border:1px solid var(--line);color:var(--text)}button:disabled{opacity:.45;cursor:not-allowed}
+header{position:sticky;top:0;z-index:5;background:#090914eF;backdrop-filter:blur(16px);border-bottom:1px solid var(--line);padding:13px max(16px,calc((100vw - 1200px)/2));display:flex;align-items:center;justify-content:space-between;gap:12px}
+.brand{display:flex;align-items:center;gap:10px;font-weight:900;font-size:20px;letter-spacing:.3px}.logo{width:35px;height:35px;border-radius:11px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:grid;place-items:center;font-size:18px}
+.wrap{max-width:1200px;margin:auto;padding:20px 16px 90px}.hero{padding:25px 22px;border:1px solid #38315e;border-radius:22px;background:linear-gradient(110deg,#21163fdd,#102b40dd);display:flex;align-items:center;justify-content:space-between;gap:18px;margin:8px 0 20px}.hero h1{font-size:clamp(25px,5vw,42px);line-height:1.05;margin:0 0 9px}.hero p{color:#d0cde3;margin:0;max-width:560px}.hero .orb{font-size:60px;filter:drop-shadow(0 8px 20px #0008)}
+.tabs{display:flex;gap:8px;overflow:auto;padding:4px 0 14px}.tab{white-space:nowrap;background:var(--panel);border:1px solid var(--line);color:var(--muted)}.tab.active{background:#33235d;color:white;border-color:#7652c5}
+.toolbar{display:flex;gap:10px;flex-wrap:wrap;margin:8px 0 18px}.toolbar input,.toolbar select,.field input,.field select{background:#111121;color:var(--text);border:1px solid var(--line);border-radius:11px;padding:12px;min-width:0}.toolbar input{flex:1;min-width:170px}
+.sectionhead{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:22px 0 12px}.sectionhead h2{margin:0;font-size:20px}.muted{color:var(--muted)}.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(145px,1fr));gap:13px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:15px;overflow:hidden;min-width:0;cursor:pointer;transition:.18s}.card:hover{transform:translateY(-3px);border-color:#7054b5}.poster{height:190px;background:linear-gradient(145deg,#272344,#122d40);display:grid;place-items:center;overflow:hidden;color:#d8d2f6;font-size:38px}.poster img{width:100%;height:100%;object-fit:cover}.cardinfo{padding:10px}.title{font-weight:750;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.sub{font-size:12px;color:var(--muted);margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.empty{padding:35px 18px;text-align:center;border:1px dashed #45415f;border-radius:16px;color:var(--muted)}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:17px;padding:17px;margin:14px 0}.panel h2,.panel h3{margin:0 0 12px}.formgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.field{display:flex;flex-direction:column;gap:6px}.field label{font-size:13px;color:var(--muted)}.field input,.field select{width:100%}.field.full{grid-column:1/-1}.actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:13px}.notice{font-size:13px;color:var(--muted);line-height:1.5;margin-top:10px}.sourceitem{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 0;border-top:1px solid var(--line)}.sourceitem:first-child{border-top:0}.sourceitem small{display:block;color:var(--muted);margin-top:3px;overflow-wrap:anywhere}
+.player{position:fixed;inset:0;background:#000e;z-index:20;display:none;align-items:center;justify-content:center;padding:15px}.player.open{display:flex}.playerbox{width:min(100%,950px);background:#10101d;border:1px solid #39334f;border-radius:18px;overflow:hidden}.playerhead{display:flex;justify-content:space-between;align-items:center;padding:12px 15px}.player video{width:100%;max-height:70vh;background:#000;display:block}.playerfoot{padding:12px 15px;color:var(--muted);font-size:13px}
+.tmdb-row{margin:18px 0 26px}.tmdb-row h3{margin:0 0 11px}.tmdb-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(135px,1fr));gap:12px}.tmdb-card{background:var(--panel);border:1px solid var(--line);border-radius:14px;overflow:hidden;cursor:pointer}.tmdb-card img{width:100%;height:190px;object-fit:cover;display:block;background:#24213b}.tmdb-card .cardinfo{padding:9px}.tmdb-card .title{white-space:normal;min-height:36px}.tmdb-overview{color:#d4d2e4;line-height:1.55}.tmdb-detail-poster{width:115px;float:left;margin:0 14px 10px 0;border-radius:12px}.tmdb-rating{color:#facc15;font-size:13px;margin-top:5px}.tmdb-search-empty{padding:20px;color:var(--muted)}.tmdb-card:hover{border-color:#8060cf;transform:translateY(-2px)}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);z-index:30;background:#28233d;border:1px solid #6551a2;padding:12px 17px;border-radius:12px;display:none;max-width:90vw}
+footer{text-align:center;color:#77758f;font-size:12px;padding:25px 10px}
+@media(max-width:600px){.tmdb-card img{height:165px}.tmdb-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.hero{padding:20px}.hero .orb{font-size:42px}.formgrid{grid-template-columns:1fr}.field.full{grid-column:auto}.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.poster{height:170px}header{padding:12px 14px}}
+</style>
+</head>
+<body>
+<header><div class="brand"><div class="logo">▶</div><span>XUPER <span style="color:var(--accent2)">STREAM</span></span></div><button class="secondary" id="openSources">＋ Agregar lista</button></header>
+<main class="wrap">
+<section class="hero"><div><h1>Todo tu entretenimiento,<br>en un solo lugar.</h1><p>Agrega tus propias listas M3U/M3U8 o conecta tu cuenta Xtream Codes para organizar y reproducir tu contenido.</p></div><div class="orb">🎬</div></section>
+<nav class="tabs" id="tabs">
+<button class="tab active" data-view="all">Mis listas</button><button class="tab" data-view="tmdb">Catálogo</button><button class="tab" data-view="movie">Películas</button><button class="tab" data-view="series">Series</button><button class="tab" data-view="live">TV en vivo</button><button class="tab" data-view="favorites">Mi lista</button><button class="tab" data-view="users">Usuarios</button><button class="tab" data-view="sources">Fuentes</button>
+</nav>
+<div id="catalogView">
+<div class="toolbar"><input id="search" placeholder="Buscar películas, series o canales…"><select id="category"><option value="">Todas las categorías</option></select><button class="secondary" id="refresh">↻ Actualizar</button></div>
+<div class="sectionhead"><h2 id="heading">Contenido disponible</h2><span class="muted" id="count">0 elementos</span></div>
+<div class="grid" id="grid"></div><div class="empty" id="empty">Todavía no hay contenido. Agrega una lista M3U o conecta Xtream Codes.</div>
+</div>
+
+<div id="tmdbView" hidden>
+ <div class="panel" id="tmdbSetup">
+  <h2>🎬 Catálogo de películas y series</h2>
+  <p class="notice">Conecta The Movie Database (TMDB) para mostrar portadas, sinopsis, calificaciones, tendencias y búsquedas en español. Este catálogo es informativo: no contiene enlaces para reproducir películas o episodios.</p>
+  <div class="field"><label>Tu clave API de TMDB</label><input id="tmdbKey" type="password" placeholder="Pega aquí tu API Key (v3)"></div>
+  <div class="actions"><button id="saveTmdbKey">Conectar catálogo</button><a class="secondary" style="padding:11px 14px;border-radius:12px;color:white;text-decoration:none" href="https://www.themoviedb.org/settings/api" target="_blank" rel="noopener">Obtener clave API</a></div>
+  <p class="notice">La clave se guarda en este dispositivo. Para una app pública o comercial, no expongas claves en el navegador y revisa la licencia comercial de TMDB.</p>
+ </div>
+ <div id="tmdbContent" hidden>
+  <div class="actions" style="margin:0 0 12px"><button class="secondary" id="changeTmdbKey">Cambiar clave API</button></div>
+  <div class="toolbar"><input id="tmdbSearch" placeholder="Buscar una película o serie…"><button id="tmdbSearchBtn">Buscar</button><button class="secondary" id="tmdbReload">↻ Actualizar</button></div>
+  <div class="tabs" id="tmdbFilters">
+   <button class="tab active" data-tmdb-mode="trending">Tendencias</button>
+   <button class="tab" data-tmdb-mode="movie">Películas populares</button>
+   <button class="tab" data-tmdb-mode="tv">Series populares</button>
+   <button class="tab" data-tmdb-mode="topmovie">Mejor valoradas</button>
+  </div>
+  <div id="tmdbResults"></div>
+ </div>
+ <div class="notice" style="margin-top:20px">Este producto utiliza la API de TMDB, pero no está respaldado ni certificado por TMDB. Datos e imágenes proporcionados por <a href="https://www.themoviedb.org" target="_blank" rel="noopener" style="color:#b9a4ff">TMDB</a>.</div>
+</div>
+
+<div id="usersView" hidden>
+ <div class="panel"><h2>👤 Mis usuarios</h2><p class="notice">Agrega cada cuenta manualmente o importa un TXT con direcciones M3U. Los perfiles se guardan en este dispositivo. Usa solamente listas y cuentas autorizadas.</p>
+  <div class="tabs" id="userEntryTabs"><button class="tab active" data-user-entry="url">URL M3U</button><button class="tab" data-user-entry="xtream">Xtream Codes</button><button class="tab" data-user-entry="txt">Importar TXT</button></div>
+  <div id="userUrlEntry"><div class="formgrid"><div class="field full"><label>Nombre del usuario</label><input id="profileName" placeholder="Mi cuenta 1"></div><div class="field full"><label>URL completa de la lista M3U</label><input id="profileUrl" placeholder="https://servidor/get.php?username=...&password=..."></div></div><div class="actions"><button id="addProfileUrl">＋ Guardar usuario</button></div></div>
+  <div id="userXtreamEntry" hidden><div class="formgrid"><div class="field full"><label>Nombre del usuario</label><input id="profileXtName" placeholder="Usuario 1"></div><div class="field full"><label>Servidor</label><input id="profileXtServer" placeholder="https://servidor:8080"></div><div class="field"><label>Usuario</label><input id="profileXtUser" autocomplete="username"></div><div class="field"><label>Contraseña</label><input id="profileXtPass" type="password" autocomplete="current-password"></div></div><div class="actions"><button id="addProfileXtream">＋ Guardar usuario</button></div></div>
+  <div id="userTxtEntry" hidden><div class="field"><label>Archivo TXT</label><input id="usersTxt" type="file" accept=".txt,text/plain"></div><div class="actions"><button id="importUsers">Detectar e importar usuarios</button></div><p class="notice">Se detectarán direcciones M3U completas que estén en el archivo, incluso si aparecen después de texto o separadas por espacios.</p></div>
+  <p class="notice">Las credenciales se guardan localmente en este dispositivo. No compartas el archivo ni el dispositivo si contiene accesos privados.</p>
+ </div>
+ <div class="sectionhead"><h2>Perfiles guardados</h2><span class="muted" id="userCount">0 perfiles</span></div><div class="actions" style="margin:0 0 14px"><button class="secondary" id="showAllProfiles">Ver contenido de todos</button></div><div id="userProfiles" class="grid"></div>
+</div>
+<div id="sourcesView" hidden>
+<div class="panel"><h2>Agregar una lista</h2><div class="tabs"><button class="tab active" data-source-tab="url">URL M3U / M3U8</button><button class="tab" data-source-tab="file">Archivo M3U</button><button class="tab" data-source-tab="xtream">Xtream Codes</button></div>
+<div id="urlForm"><div class="formgrid"><div class="field full"><label>Nombre de la lista</label><input id="m3uname" placeholder="Mi lista de películas"></div><div class="field full"><label>URL M3U o M3U8</label><input id="m3uurl" placeholder="https://servidor/lista.m3u"></div></div><div class="actions"><button id="addUrl">Cargar lista</button></div></div>
+<div id="fileForm" hidden><div class="field"><label>Nombre de la lista (opcional)</label><input id="filename" placeholder="Lista local"></div><div class="field" style="margin-top:10px"><label>Seleccionar archivo .m3u / .m3u8</label><input id="m3ufile" type="file" accept=".m3u,.m3u8,.txt,audio/x-mpegurl,application/vnd.apple.mpegurl"></div><div class="actions"><button id="addFile">Importar archivo</button></div></div>
+<div id="xtreamForm" hidden><div class="formgrid"><div class="field full"><label>Nombre de la conexión</label><input id="xtname" placeholder="Mi proveedor"></div><div class="field full"><label>Servidor (con https://)</label><input id="xtserver" placeholder="https://servidor:8080"></div><div class="field"><label>Usuario</label><input id="xtuser" autocomplete="username"></div><div class="field"><label>Contraseña</label><input id="xtpass" type="password" autocomplete="current-password"></div></div><div class="actions"><button id="addXtream">Conectar y cargar</button></div></div>
+<p class="notice">Usa únicamente listas y credenciales que tengas autorización para utilizar. Algunas direcciones pueden bloquear conexiones desde el navegador (CORS); en ese caso, prueba el archivo M3U o aloja la lista en un servidor que permita acceso web. Las credenciales Xtream se guardan solo en este dispositivo.</p>
+</div>
+<div class="panel"><h3>Listas guardadas</h3><div id="sourceList" class="muted">No has agregado listas.</div></div>
+</div>
+<footer>Reproductor personal · No incluye canales, películas ni suscripciones.</footer>
+</main>
+<div class="player" id="player"><div class="playerbox"><div class="playerhead"><strong id="playingTitle">Reproduciendo</strong><button class="secondary" id="closePlayer">✕ Cerrar</button></div><video id="video" controls playsinline></video><div class="playerfoot" id="playHint">Si el video no inicia, el formato podría no ser compatible con el navegador.</div></div></div>
+<div class="player" id="episodePicker"><div class="playerbox"><div class="playerhead"><strong id="episodeTitle">Seleccionar episodio</strong><button class="secondary" id="closeEpisodes">✕ Cerrar</button></div><div id="episodeList" style="padding:0 16px 18px;max-height:70vh;overflow:auto"></div></div></div>
+<div class="player" id="tmdbDetail"><div class="playerbox"><div class="playerhead"><strong id="tmdbDetailTitle">Detalles</strong><button class="secondary" id="closeTmdbDetail">✕ Cerrar</button></div><div id="tmdbDetailBody" style="padding:0 16px 18px;max-height:75vh;overflow:auto"></div></div></div>
+<div class="toast" id="toast"></div>
+<script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.17/dist/hls.min.js"></script>
+<script>
+const $=s=>document.querySelector(s);
+let items=[],sources=[],profiles=[],activeProfile='',view='all',hls=null,tmdbMode='trending',tmdbData=[];
+const saved=()=>{try{sources=JSON.parse(localStorage.getItem('xs_sources')||'[]')}catch{sources=[]}try{items=JSON.parse(localStorage.getItem('xs_items')||'[]')}catch{items=[]}try{profiles=JSON.parse(localStorage.getItem('xs_profiles')||'[]')}catch{profiles=[]}activeProfile=localStorage.getItem('xs_active_profile')||''};
+function persist(){try{localStorage.setItem('xs_sources',JSON.stringify(sources));localStorage.setItem('xs_items',JSON.stringify(items));localStorage.setItem('xs_profiles',JSON.stringify(profiles));localStorage.setItem('xs_active_profile',activeProfile)}catch(e){toast('No hay espacio suficiente en el almacenamiento del dispositivo.');throw e}}
+function toast(t){$('#toast').textContent=t;$('#toast').style.display='block';setTimeout(()=>$('#toast').style.display='none',3200)}
+function safeText(s=''){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function parseM3U(text,source){const lines=text.replace(/^\uFEFF/,'').split(/\r?\n/);let current=null,out=[];
+ for(const line0 of lines){const line=line0.trim();if(line.startsWith('#EXTINF')){const name=(line.split(',').slice(1).join(',').trim()||'Sin título');const attr=k=>{const m=line.match(new RegExp(k+'="([^"]*)"','i'));return m?m[1]:''};current={name,logo:attr('tvg-logo'),group:attr('group-title')||'Sin categoría',tvgId:attr('tvg-id'),source,type:guessType(attr('group-title'),name)}}
+ else if(line&&!line.startsWith('#')&&current){out.push({...current,url:line,id:source+'_'+out.length});current=null}}
+ return out}
+function guessType(group,name){let s=(group+' '+name).toLowerCase();if(/serie|series|season|temporada|episodio/.test(s))return'series';if(/pel[ií]cula|movie|vod|cinema/.test(s))return'movie';return'live'}
+async function loadUrl(url,name){if(!/^https?:\/\//i.test(url))throw Error('La URL debe comenzar con http:// o https://');let r=await fetch(url);if(!r.ok)throw Error('El servidor respondió '+r.status);let t=await r.text();if(!t.includes('#EXTM3U'))throw Error('El archivo no parece ser una lista M3U válida');let id='m3u_'+Date.now(),parsed=parseM3U(t,id);if(!parsed.length)throw Error('No se encontraron elementos en la lista');sources.push({id,name,type:'m3u',url});items.push(...parsed);persist();render();toast('Lista cargada: '+parsed.length+' elementos')}
+async function loadXtream(data){let base=data.server.replace(/\/+$/,'');let api=base+'/player_api.php?username='+encodeURIComponent(data.user)+'&password='+encodeURIComponent(data.pass);
+ const get=async action=>{let r=await fetch(api+'&action='+action);if(!r.ok)throw Error('No se pudo conectar con Xtream');return r.json()};
+ const [liveCats,vodCats,seriesCats,live,vod,series]=await Promise.all([get('get_live_categories'),get('get_vod_categories'),get('get_series_categories'),get('get_live_streams'),get('get_vod_streams'),get('get_series')]);
+ let id='xt_'+Date.now()+'_'+Math.random().toString(36).slice(2,7),out=[];
+ const add=(arr,type)=>arr.forEach(x=>{let cat=(type==='live'?liveCats:type==='movie'?vodCats:seriesCats).find(c=>String(c.category_id)===String(x.category_id));let streamId=x.stream_id||x.series_id;let ext=x.container_extension||'mp4';let url=type==='live'?`${base}/live/${encodeURIComponent(data.user)}/${encodeURIComponent(data.pass)}/${streamId}.${ext}`:type==='movie'?`${base}/movie/${encodeURIComponent(data.user)}/${encodeURIComponent(data.pass)}/${streamId}.${ext}`:`${base}/player_api.php?username=${encodeURIComponent(data.user)}&password=${encodeURIComponent(data.pass)}&action=get_series_info&series_id=${streamId}`;
+ out.push({id:id+'_'+type+'_'+streamId,name:x.name||'Sin título',logo:x.stream_icon||x.cover||'',group:cat?.category_name||'Sin categoría',type,url,source:id,seriesId:type==='series'?streamId:null})});
+ add(live,'live');add(vod,'movie');add(series,'series');
+ if(!out.length)throw Error('La cuenta no devolvió contenido');sources.push({id,name:data.name,type:'xtream',server:base,user:data.user,pass:data.pass});items.push(...out);persist();render();toast('Conexión cargada: '+out.length+' elementos')}
+function render(){let list=items.filter(x=>(!activeProfile||x.profile===activeProfile)&& (view==='all'||view==='favorites'?view==='favorites'?x.favorite: true:x.type===view));let q=$('#search').value.toLowerCase();let cat=$('#category').value;if(q)list=list.filter(x=>x.name.toLowerCase().includes(q)||x.group.toLowerCase().includes(q));if(cat)list=list.filter(x=>x.group===cat);
+ let cats=[...new Set(items.map(x=>x.group).filter(Boolean))].sort();$('#category').innerHTML='<option value="">Todas las categorías</option>'+cats.map(c=>`<option ${c===cat?'selected':''} value="${safeText(c)}">${safeText(c)}</option>`).join('');
+ $('#heading').textContent=({all:'Contenido disponible',movie:'Películas',series:'Series',live:'TV en vivo',favorites:'Mi lista'})[view]||'Contenido';$('#count').textContent=list.length+' elementos';$('#grid').innerHTML=list.slice(0,500).map(x=>`<article class="card" data-id="${safeText(x.id)}"><div class="poster">${x.logo?`<img loading="lazy" src="${safeText(x.logo)}" onerror="this.remove()">`:'▶'}</div><div class="cardinfo"><div class="title">${safeText(x.name)}</div><div class="sub">${safeText(x.group)} · ${x.type==='live'?'TV en vivo':x.type==='movie'?'Película':'Serie'}</div><div style="display:flex;gap:6px;margin-top:9px"><button style="padding:6px 9px;font-size:12px" data-play="${safeText(x.id)}">▶ Ver</button><button class="secondary" style="padding:6px 9px" data-fav="${safeText(x.id)}">${x.favorite?'★':'☆'}</button></div></div></article>`).join('');
+ $('#empty').style.display=list.length?'none':'block';renderProfiles();$('#sourceList').innerHTML=sources.length?sources.map(s=>`<div class="sourceitem"><div><strong>${safeText(s.name)}</strong><small>${s.type==='xtream'?'Xtream Codes':'Lista M3U'} · ${items.filter(x=>x.source===s.id).length} elementos</small></div><button class="secondary" data-remove="${safeText(s.id)}">Eliminar</button></div>`).join(''):'No has agregado listas.'}
+async function showEpisodes(item){
+ try{
+  const r=await fetch(item.url);if(!r.ok)throw Error('No se pudieron consultar los episodios.');
+  const data=await r.json();const groups=data.episodes||{};const episodes=Object.values(groups).flat();
+  if(!episodes.length)throw Error('Esta serie no tiene episodios disponibles en la respuesta del servidor.');
+  $('#episodeTitle').textContent=item.name;$('#episodeList').innerHTML=episodes.map((ep,i)=>{const title=safeText(ep.title||('Episodio '+(i+1)));const season=ep.season?`Temporada ${safeText(ep.season)}`:'';const ext=String(ep.container_extension||'mp4').replace(/[^a-z0-9]/gi,'');const id=encodeURIComponent(ep.id||ep.episode_id||'');const source=sources.find(s=>s.id===item.source);const url=source?`${source.server}/series/${encodeURIComponent(source.user)}/${encodeURIComponent(source.pass)}/${id}.${ext}`:'';return `<button class="secondary" data-episode-url="${safeText(url)}" data-episode-name="${title}" style="display:block;width:100%;text-align:left;margin:7px 0">${season?season+' · ':''}${title}</button>`}).join('');
+  $('#episodePicker').classList.add('open');
+ }catch(e){toast(e.message||'Error al cargar episodios.')}
+}
+$('#episodeList').addEventListener('click',e=>{const b=e.target.closest('[data-episode-url]');if(!b||!b.dataset.episodeUrl)return;$('#episodePicker').classList.remove('open');const item={name:b.dataset.episodeName,url:b.dataset.episodeUrl,type:'episode'};play(item)});
+$('#closeEpisodes').onclick=()=>$('#episodePicker').classList.remove('open');
+async function play(item){if(item.type==='series'&&item.url.includes('player_api.php')){await showEpisodes(item);return}
+ $('#playingTitle').textContent=item.name;$('#player').classList.add('open');let v=$('#video');if(hls){hls.destroy();hls=null}v.pause();v.removeAttribute('src');v.load();
+ if(item.url.includes('.m3u8')&&window.Hls&&Hls.isSupported()){hls=new Hls();hls.loadSource(item.url);hls.attachMedia(v);hls.on(Hls.Events.ERROR,(_,d)=>{if(d.fatal)toast('No se pudo reproducir. Verifica la URL o CORS.')})}
+ else if(v.canPlayType('application/vnd.apple.mpegurl'))v.src=item.url;else v.src=item.url;
+ v.play().catch(()=>toast('Pulsa reproducir. Si falla, el formato puede no ser compatible.'))}
+$('#grid').addEventListener('click',e=>{let p=e.target.closest('[data-play]'),f=e.target.closest('[data-fav]');if(p){let x=items.find(i=>i.id===p.dataset.play);if(x)play(x)}if(f){let x=items.find(i=>i.id===f.dataset.fav);if(x){x.favorite=!x.favorite;persist();render()}}});
+function renderProfiles(){
+ $('#userCount').textContent=profiles.length+' perfiles';
+ $('#userProfiles').innerHTML=profiles.length?profiles.map(p=>`<article class="panel" style="margin:0;border-color:${activeProfile===p.id?'#8b5cf6':'var(--line)'}"><div style="font-size:30px">👤</div><strong>${safeText(p.name)}${activeProfile===p.id?' · Activo':''}</strong><div class="sub">${safeText(p.host||p.server||'Cuenta local')} · ${safeText(p.format||'Xtream Codes')}</div><div class="actions"><button data-profile-load="${safeText(p.id)}">${activeProfile===p.id?'Usuario activo':'Cargar usuario'}</button><button class="secondary" data-profile-delete="${safeText(p.id)}">Eliminar</button></div></article>`).join(''):'<div class="empty" style="grid-column:1/-1">Todavía no hay perfiles. Agrega una cuenta o importa tu TXT.</div>';
+}
+function parseUserTxt(text){
+ const matches=String(text||'').replace(/^\uFEFF/,'').match(/https?:\/\/[^\s\"'<>]+/gi)||[];
+ const seen=new Set(),out=[];
+ for(let raw of matches){raw=raw.replace(/[),;]+$/,'');try{const u=new URL(raw);const isPlaylist=/get\.php/i.test(u.pathname)||/\.m3u8?$/i.test(u.pathname)||/m3u_plus|type=m3u/i.test(u.search);if(!isPlaylist)continue;
+  const key=u.href;if(seen.has(key))continue;seen.add(key);const username=u.searchParams.get('username')||u.searchParams.get('user')||'';const host=u.origin;
+  out.push({id:'profile_'+Date.now().toString(36)+'_'+out.length+'_'+Math.random().toString(36).slice(2,6),name:username||('Lista '+(out.length+1)),host,format:username?'Xtream/M3U':'M3U',url:u.href,username,password:u.searchParams.get('password')||'',kind:'m3u'});
+ }catch{}}
+ return out;
+}
+function addProfile(profile){const duplicate=profiles.some(p=>(p.url&&p.url===profile.url)||(p.kind==='xtream'&&profile.kind==='xtream'&&p.server===profile.server&&p.username===profile.username));if(duplicate)return false;profiles.push(profile);persist();renderProfiles();return true;}
+function activateProfile(id){activeProfile=id;persist();view='all';document.querySelectorAll('[data-view]').forEach(x=>x.classList.toggle('active',x.dataset.view==='all'));$('#catalogView').hidden=false;$('#usersView').hidden=true;$('#sourcesView').hidden=true;$('#tmdbView').hidden=true;render();}
+$('#userEntryTabs').addEventListener('click',e=>{const b=e.target.closest('[data-user-entry]');if(!b)return;document.querySelectorAll('[data-user-entry]').forEach(x=>x.classList.toggle('active',x===b));['url','xtream','txt'].forEach(k=>$('#user'+(k==='url'?'Url':k==='xtream'?'Xtream':'Txt')+'Entry').hidden=k!==b.dataset.userEntry);});
+$('#addProfileUrl').onclick=()=>{const url=$('#profileUrl').value.trim();if(!/^https?:\/\//i.test(url))return toast('Escribe una URL M3U válida.');let u;try{u=new URL(url)}catch{return toast('La URL no es válida.')}const username=u.searchParams.get('username')||u.searchParams.get('user')||'';const p={id:'profile_'+Date.now().toString(36),name:$('#profileName').value.trim()||username||('Usuario '+(profiles.length+1)),host:u.origin,format:username?'Xtream/M3U':'M3U',url:u.href,username,password:u.searchParams.get('password')||'',kind:'m3u'};if(!addProfile(p))return toast('Ese usuario ya está guardado.');$('#profileName').value='';$('#profileUrl').value='';toast('Usuario guardado. Ahora pulsa Cargar usuario.');};
+$('#addProfileXtream').onclick=()=>{const server=$('#profileXtServer').value.trim().replace(/\/+$/,''),username=$('#profileXtUser').value.trim(),password=$('#profileXtPass').value;if(!/^https?:\/\//i.test(server)||!username||!password)return toast('Completa servidor, usuario y contraseña.');let p={id:'profile_'+Date.now().toString(36),name:$('#profileXtName').value.trim()||username,host:server,server,username,password,format:'Xtream Codes',kind:'xtream'};if(!addProfile(p))return toast('Ese usuario ya está guardado.');$('#profileXtName').value='';$('#profileXtServer').value='';$('#profileXtUser').value='';$('#profileXtPass').value='';toast('Usuario guardado. Ahora pulsa Cargar usuario.');};
+$('#showAllProfiles').onclick=()=>{activeProfile='';persist();render();toast('Mostrando contenido de todos los perfiles.');};
+$('#importUsers').onclick=()=>{const f=$('#usersTxt').files[0];if(!f)return toast('Selecciona un archivo TXT.');const rd=new FileReader();rd.onload=()=>{const found=parseUserTxt(String(rd.result||''));if(!found.length)return toast('No se encontraron direcciones M3U reconocibles en el TXT.');let added=0;for(const p of found)if(addProfile(p))added++;renderProfiles();toast('Detectadas '+found.length+' direcciones; '+added+' perfiles nuevos.');};rd.readAsText(f)};
+$('#userProfiles').addEventListener('click',async e=>{const load=e.target.closest('[data-profile-load]'),del=e.target.closest('[data-profile-delete]');if(del){const id=del.dataset.profileDelete;const srcIds=sources.filter(s=>s.profile===id).map(s=>s.id);sources=sources.filter(s=>s.profile!==id);items=items.filter(i=>!srcIds.includes(i.source));profiles=profiles.filter(p=>p.id!==id);if(activeProfile===id)activeProfile='';persist();renderProfiles();render();toast('Perfil eliminado.');return;}if(load){const p=profiles.find(x=>x.id===load.dataset.profileLoad);if(!p)return;load.disabled=true;try{let existing=sources.find(s=>s.profile===p.id);if(!existing){if(p.kind==='xtream'){await loadXtream({name:p.name,server:p.server,user:p.username,pass:p.password});existing=sources[sources.length-1];}else{await loadUrl(p.url,p.name);existing=sources[sources.length-1];}if(existing){existing.profile=p.id;items.filter(i=>i.source===existing.id).forEach(i=>i.profile=p.id);persist();}}activateProfile(p.id);toast('Usuario cargado: '+p.name);}catch(err){toast('No se pudo cargar: '+err.message+' (puede ser CORS, URL o cuenta no disponible).');}finally{load.disabled=false;}}});
+$('#sourceList').addEventListener('click',e=>{let b=e.target.closest('[data-remove]');if(b){let id=b.dataset.remove;sources=sources.filter(s=>s.id!==id);items=items.filter(i=>i.source!==id);persist();render();toast('Lista eliminada')}})
+$('#tabs').addEventListener('click',e=>{let b=e.target.closest('[data-view]');if(!b)return;view=b.dataset.view;document.querySelectorAll('[data-view]').forEach(x=>x.classList.toggle('active',x===b));$('#catalogView').hidden=view==='sources'||view==='tmdb'||view==='users';$('#sourcesView').hidden=view!=='sources';$('#usersView').hidden=view!=='users';$('#tmdbView').hidden=view!=='tmdb';render();if(view==='tmdb')initTmdb()});
+$('#openSources').onclick=()=>{view='sources';document.querySelectorAll('[data-view]').forEach(x=>x.classList.toggle('active',x.dataset.view==='sources'));$('#catalogView').hidden=true;$('#sourcesView').hidden=false;$('#usersView').hidden=true;$('#tmdbView').hidden=true;window.scrollTo(0,0)};
+document.querySelectorAll('[data-source-tab]').forEach(b=>b.onclick=()=>{document.querySelectorAll('[data-source-tab]').forEach(x=>x.classList.toggle('active',x===b));['url','file','xtream'].forEach(k=>$('#'+k+'Form').hidden=k!==b.dataset.sourceTab)});
+$('#addUrl').onclick=async()=>{try{await loadUrl($('#m3uurl').value.trim(),$('#m3uname').value.trim()||'Lista M3U')}catch(e){toast(e.message)}};
+$('#addFile').onclick=()=>{let f=$('#m3ufile').files[0];if(!f)return toast('Selecciona un archivo');let reader=new FileReader();reader.onload=()=>{try{let id='file_'+Date.now(),parsed=parseM3U(reader.result,id);if(!parsed.length)throw Error('No se encontraron elementos');sources.push({id,name:$('#filename').value||f.name,type:'file'});items.push(...parsed);persist();render();toast('Archivo importado: '+parsed.length+' elementos')}catch(e){toast(e.message)}};reader.readAsText(f)};
+$('#addXtream').onclick=async()=>{let data={name:$('#xtname').value.trim()||'Xtream',server:$('#xtserver').value.trim(),user:$('#xtuser').value.trim(),pass:$('#xtpass').value};if(!data.server||!data.user||!data.pass)return toast('Completa servidor, usuario y contraseña');try{await loadXtream(data)}catch(e){toast('Error de conexión: '+e.message)}};
+$('#search').oninput=render;$('#category').onchange=render;$('#refresh').onclick=()=>toast('Para actualizar, vuelve a cargar la URL de tu lista.');$('#closePlayer').onclick=()=>{$('#player').classList.remove('open');$('#video').pause();if(hls){hls.destroy();hls=null}};
+
+// ===== Catálogo visual TMDB (metadatos; no proporciona streams) =====
+const TMDB_API='https://api.themoviedb.org/3';
+const TMDB_IMG='https://image.tmdb.org/t/p/w500';
+const tmdbKey=()=>localStorage.getItem('xs_tmdb_key')||'';
+async function tmdbFetch(path){
+ const key=tmdbKey(); if(!key) throw new Error('Primero agrega tu clave API de TMDB.');
+ const url=new URL(TMDB_API+path);url.searchParams.set('api_key',key);url.searchParams.set('language','es-MX');url.searchParams.set('region','MX');
+ const res=await fetch(url);const data=await res.json().catch(()=>({}));
+ if(!res.ok)throw new Error(data.status_message||'No se pudo consultar TMDB.');
+ return data;
+}
+function tmdbTitle(x){return x.title||x.name||x.original_title||x.original_name||'Sin título'}
+function tmdbYear(x){return (x.release_date||x.first_air_date||'').slice(0,4)||'Año desconocido'}
+function tmdbCard(x){
+ const title=safeText(tmdbTitle(x)),poster=x.poster_path?TMDB_IMG+x.poster_path:'';
+ const type=x.media_type|| (x.first_air_date?'tv':'movie');
+ return `<article class="tmdb-card" data-tmdb-id="${x.id}" data-tmdb-type="${type}">
+ ${poster?`<img loading="lazy" src="${poster}" alt="${title}" onerror="this.style.visibility='hidden'">`:'<div class="poster">🎬</div>'}
+ <div class="cardinfo"><div class="title">${title}</div><div class="sub">${tmdbYear(x)} · ${type==='tv'?'Serie':'Película'}</div><div class="tmdb-rating">★ ${Number(x.vote_average||0).toFixed(1)}/10</div></div></article>`;
+}
+function tmdbSection(title,arr){return `<section class="tmdb-row"><h3>${safeText(title)}</h3><div class="tmdb-grid">${arr.slice(0,18).map(tmdbCard).join('')}</div></section>`}
+async function tmdbLoad(mode=tmdbMode){
+ tmdbMode=mode;const out=$('#tmdbResults');out.innerHTML='<div class="empty">Cargando catálogo…</div>';
+ try{
+  if(mode==='trending'){
+   const d=await tmdbFetch('/trending/all/week');tmdbData=(d.results||[]).filter(x=>x.media_type==='movie'||x.media_type==='tv');
+   out.innerHTML=tmdbSection('Tendencias de la semana',tmdbData);
+  }else if(mode==='movie'){
+   const d=await tmdbFetch('/movie/popular');tmdbData=(d.results||[]).map(x=>({...x,media_type:'movie'}));
+   out.innerHTML=tmdbSection('Películas populares',tmdbData);
+  }else if(mode==='tv'){
+   const d=await tmdbFetch('/tv/popular');tmdbData=(d.results||[]).map(x=>({...x,media_type:'tv'}));
+   out.innerHTML=tmdbSection('Series populares',tmdbData);
+  }else{
+   const d=await tmdbFetch('/movie/top_rated');tmdbData=(d.results||[]).map(x=>({...x,media_type:'movie'}));
+   out.innerHTML=tmdbSection('Películas mejor valoradas',tmdbData);
+  }
+ }catch(e){out.innerHTML=`<div class="empty">${safeText(e.message)}<br><br><button onclick="initTmdb()">Reintentar</button></div>`}
+}
+async function tmdbSearch(){
+ const q=$('#tmdbSearch').value.trim();if(!q)return tmdbLoad();
+ const out=$('#tmdbResults');out.innerHTML='<div class="empty">Buscando…</div>';
+ try{const d=await tmdbFetch('/search/multi?query='+encodeURIComponent(q)+'&include_adult=false');tmdbData=(d.results||[]).filter(x=>x.media_type==='movie'||x.media_type==='tv');out.innerHTML=tmdbData.length?tmdbSection('Resultados de búsqueda',tmdbData):'<div class="empty">No se encontraron resultados.</div>'}
+ catch(e){out.innerHTML=`<div class="empty">${safeText(e.message)}</div>`}
+}
+async function tmdbDetails(id,type){
+ try{
+  const d=await tmdbFetch('/'+(type==='tv'?'tv':'movie')+'/'+id);
+  const title=safeText(tmdbTitle(d)),poster=d.poster_path?TMDB_IMG+d.poster_path:'';
+  const overview=safeText(d.overview||'No hay sinopsis disponible en español.');
+  const genres=(d.genres||[]).map(g=>safeText(g.name)).join(' · ');
+  $('#tmdbDetailTitle').textContent=tmdbTitle(d);
+  $('#tmdbDetailBody').innerHTML=`${poster?`<img class="tmdb-detail-poster" src="${poster}" alt="${title}">`:''}<h2>${title}</h2><p class="muted">${tmdbYear(d)} · ${type==='tv'?'Serie':'Película'} · ★ ${Number(d.vote_average||0).toFixed(1)}/10</p><p class="tmdb-overview">${overview}</p><p class="muted">${genres}</p><div style="clear:both"></div><p class="notice">Ficha informativa de TMDB. Para reproducir este título, necesitas una fuente o servicio que tengas autorización para utilizar.</p>`;
+  $('#tmdbDetail').classList.add('open');
+ }catch(e){toast(e.message)}
+}
+function initTmdb(){
+ const key=tmdbKey();$('#tmdbKey').value=key;
+ $('#tmdbSetup').hidden=!!key;$('#tmdbContent').hidden=!key;
+ if(key&&!$('#tmdbResults').dataset.loaded){$('#tmdbResults').dataset.loaded='1';tmdbLoad('trending')}
+}
+$('#saveTmdbKey').onclick=async()=>{
+ const key=$('#tmdbKey').value.trim();if(!key)return toast('Pega tu clave API de TMDB.');
+ localStorage.setItem('xs_tmdb_key',key);$('#tmdbResults').dataset.loaded='';initTmdb();await tmdbLoad('trending');
+};
+$('#tmdbFilters').addEventListener('click',e=>{const b=e.target.closest('[data-tmdb-mode]');if(!b)return;document.querySelectorAll('[data-tmdb-mode]').forEach(x=>x.classList.toggle('active',x===b));$('#tmdbSearch').value='';tmdbLoad(b.dataset.tmdbMode)});
+$('#tmdbSearchBtn').onclick=tmdbSearch;
+$('#tmdbSearch').addEventListener('keydown',e=>{if(e.key==='Enter')tmdbSearch()});
+$('#tmdbReload').onclick=()=>tmdbLoad();
+$('#changeTmdbKey').onclick=()=>{localStorage.removeItem('xs_tmdb_key');$('#tmdbResults').dataset.loaded='';initTmdb()};
+$('#tmdbResults').addEventListener('click',e=>{const card=e.target.closest('[data-tmdb-id]');if(card)tmdbDetails(card.dataset.tmdbId,card.dataset.tmdbType)});
+$('#closeTmdbDetail').onclick=()=>$('#tmdbDetail').classList.remove('open');
+
+saved();render();
+if('serviceWorker'in navigator && location.protocol.startsWith('http'))navigator.serviceWorker.register('./sw.js').catch(()=>{});
+</script>
+</body></html>

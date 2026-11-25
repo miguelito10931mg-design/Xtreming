@@ -1,0 +1,18 @@
+{
+  "name": "Xuper Stream",
+  "short_name": "Xuper Stream",
+  "description": "Reproductor personal y catálogo informativo de películas y series.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#090914",
+  "theme_color": "#090914",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
